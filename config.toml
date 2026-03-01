@@ -1,5 +1,4 @@
-[flaresolver]
-url="http://localhost:8191/v1"
-
 [codeforces]
-url="https://codeforces.com"
+
+[problem-to-text]
+title-font="standard" # Here are all the fonts available https://www.ascii-art.site/FontList.html
