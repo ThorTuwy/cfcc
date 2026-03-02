@@ -6,6 +6,7 @@ from rich.console import Console
 import beautifier.errors
 from beautifier.test_case import TestCaseVerdict
 import beautifier.test_case
+import inspect
 
 def _read_problem_testcases(problem_path:Path):
     testcases: list[tuple[str, str]] = []
@@ -62,7 +63,7 @@ def _run_testcases(console:Console,problem_exe: Path, testcases: list[tuple[str,
 
         if run.returncode != 0:
             case_verdict = TestCaseVerdict.RUNTIME_ERROR
-        elif run.stdout.strip() != expected_output.strip():
+        elif run.stdout.split() != expected_output.split():
             case_verdict = TestCaseVerdict.WRONG_ANSWER
 
         beautifier.test_case.print_test_case(console,case_verdict, str(idx+1), case_input, expected_output, run.stdout, run.stderr)
