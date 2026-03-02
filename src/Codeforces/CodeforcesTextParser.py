@@ -24,6 +24,10 @@ class NoNewlineLatexNodes2Text(LatexNodes2Text):
         return text
 
 def _parse_text(text: str) -> str:
+
+    #Dirty trick but it works, I guess
+    text = text.replace(r"\bmod", "mod")
+
     latex_to_text = NoNewlineLatexNodes2Text().latex_to_text
     text = latex_to_text(text)
     return text
