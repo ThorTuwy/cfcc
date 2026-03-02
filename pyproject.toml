@@ -8,7 +8,6 @@ dependencies = [
     "art>=6.5",
     "beautifulsoup4>=4.14.3",
     "browser-cookie3>=0.20.1",
-    "camoufox>=0.4.11",
     "dacite>=1.9.2",
     "httpx>=0.28.1",
     "pycookiecheat>=0.8.0",

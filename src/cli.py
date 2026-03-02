@@ -50,18 +50,18 @@ def read_problem_toml(problem_path:Path) -> CFProblem:
 
 @app.command("problem")
 def cli_get_problem(
+    problem_url: Annotated[str, typer.Argument()] = "",
     problem_path_location: Annotated[
-        Path,
-        typer.Argument(
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            writable=True,
-            readable=True,
-            resolve_path=True,
-        ),
+    Path,
+    typer.Argument(
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+    ),
     ]=Path.cwd(),
-    problem_url:str =""
 ):
     """Get a problem from Codeforces."""
     if not problem_url:
