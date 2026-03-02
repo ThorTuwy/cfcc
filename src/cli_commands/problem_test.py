@@ -62,7 +62,7 @@ def _run_testcases(console:Console,problem_exe: Path, testcases: list[tuple[str,
 
         if run.returncode != 0:
             case_verdict = TestCaseVerdict.RUNTIME_ERROR
-        elif run.stdout != expected_output:
+        elif run.stdout.strip() != expected_output.strip():
             case_verdict = TestCaseVerdict.WRONG_ANSWER
 
         beautifier.test_case.print_test_case(console,case_verdict, str(idx+1), case_input, expected_output, run.stdout, run.stderr)
