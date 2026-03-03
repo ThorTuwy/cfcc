@@ -1,29 +1,40 @@
-from typing import Dict
-
 import browser_cookie3
 import httpx
-
-DEFAULT_URL = "https://codeforces.com"
-DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+from utils.program_configs import CodeforcesConfig
 
 class CodeforcesRequester:
-    def __init__(self,codeforces_requester_configs:Dict[str,str]):
-        codeforces_url = codeforces_requester_configs.get("url", DEFAULT_URL)
+    def __init__(self,codeforces_config:CodeforcesConfig):
+        codeforces_url = codeforces_config.url
         codeforces_domain = codeforces_url.split("://")[1].split("/")[0]
 
-        user_agent = codeforces_requester_configs.get("user-agent", DEFAULT_USER_AGENT)
-        for browser in browser_cookie3.all_browsers:
+        browsers_to_check = browser_cookie3.all_browsers
+        prefer_browser = None
+
+        if codeforces_config.prefer_browser_cookies is not None:
+            for browser in browsers_to_check:
+                if browser.__name__.lower() == codeforces_config.prefer_browser_cookies.lower():
+                    prefer_browser = browser
+                    break
+
+        if prefer_browser:
+            browsers_to_check.remove(prefer_browser)
+            browsers_to_check.insert(0, prefer_browser)
+
+        user_agent = codeforces_config.user_agent
+        cookies=None
+        for browser in browsers_to_check:
             try:
-                cookies = browser(domain_name=codeforces_domain)
-                if cookies.get("X-User"):
+                for cookie in browser(domain_name=codeforces_domain):
+                    if cookie.name == "X-User":
+                        cookies = browser(domain_name=codeforces_domain)
+                        break
+                if cookies is not None:
                     break
             except:
                 continue
 
-        if codeforces_url is None:
-            codeforces_url = DEFAULT_URL
-        if user_agent is None:
-            user_agent = DEFAULT_USER_AGENT
+        if cookies is None:
+            print("(!) No cookies found for Codeforces, you are not going to be able to access to some features (private gyms, submissions, etc).")
 
         self.url = codeforces_url
         self._session = httpx.Client(

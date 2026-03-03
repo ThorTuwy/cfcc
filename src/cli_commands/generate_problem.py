@@ -6,7 +6,9 @@ import dataclasses
 import os
 import shutil
 from pathlib import Path
-import tomli_w
+
+import tomlkit
+
 from Codeforces.Codeforces import CFProblem
 
 def generate_problem(contest_path:Path, problem:CFProblem, code_template_file:Path|None=None):
@@ -33,5 +35,5 @@ def generate_problem(contest_path:Path, problem:CFProblem, code_template_file:Pa
         with open(problem_path / code_file_path, "w") as f:
             f.write("")
 
-    with open(problem_path / f"problem.toml", "wb") as f:
-        tomli_w.dump(dataclasses.asdict(problem), f)
+    with open(problem_path / f"problem.toml", "w") as f:
+        tomlkit.dump(dataclasses.asdict(problem), f)

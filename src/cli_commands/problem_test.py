@@ -68,9 +68,6 @@ def _run_testcases(console:Console,problem_exe: Path, testcases: list[tuple[str,
 
         beautifier.test_case.print_test_case(console,case_verdict, str(idx+1), case_input, expected_output, run.stdout, run.stderr)
 
-
-DEFAULT_COMPILATION_COMMAND = "g++ -Wall -Wextra -Wshadow -Wfloat-equal -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -std=c++23"
-
 def test_problem(console:Console,problem_path:Path,problem_code_file:Path, user_compilation_command:str|None=None):
 
     if user_compilation_command is None:

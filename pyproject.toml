@@ -5,16 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "art>=6.5",
     "beautifulsoup4>=4.14.3",
     "browser-cookie3>=0.20.1",
     "dacite>=1.9.2",
     "httpx>=0.28.1",
     "pycookiecheat>=0.8.0",
-    "pydetex>=1.1.1",
     "pylatexenc>=2.10",
     "rich>=14.3.3",
-    "tomli-w>=1.2.0",
+    "tomlkit>=0.14.0",
     "typer>=0.24.1",
     "yaspin>=3.4.0",
 ]

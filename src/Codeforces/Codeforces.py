@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 
 from Codeforces.CodeforcesRequester import CodeforcesRequester
 from Codeforces.CodeforcesTextParser import get_text_in_div
+from utils.program_configs import CodeforcesConfig
 
 
 @dataclass
@@ -24,7 +25,7 @@ class CFContest:
     problems: list[str]
 
 class Codeforces:
-    def __init__(self, codeforces_requester_configs: Dict[str, Any]):
+    def __init__(self, codeforces_requester_configs: CodeforcesConfig):
         self.requester = CodeforcesRequester(codeforces_requester_configs)
 
     def get_problem(self, contest_id: str, problem_index: str, is_gym=False) -> CFProblem:

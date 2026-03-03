@@ -2,11 +2,10 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from typing import Annotated
 
-import tomli_w
+import tomlkit
 import typer
 from rich.console import Console
-from rich.progress import track
-from yaspin import Spinner, yaspin
+from yaspin import yaspin
 from yaspin.spinners import Spinners
 
 from Codeforces.Codeforces import Codeforces
@@ -15,7 +14,8 @@ import cli_commands.problem_test
 import cli_commands.generate_problem
 import beautifier.problem
 
-from utils.file_managment import load_general_config_file, read_problem_file
+from utils.file_managment import read_problem_file
+from utils.program_configs import ProgramConfigs
 
 app = typer.Typer()
 console = Console()
@@ -63,14 +63,14 @@ def cli_get_problem(
         print(f"Folder {problem_folder} already exists")
         return
 
-    config = load_general_config_file()
-    codeforces_api = Codeforces(config.get("codeforces", {}))
+    config = ProgramConfigs.get_program_config()
+    codeforces_api = Codeforces(config.codeforces_config)
 
     with yaspin(Spinners.earth, text="Fetching problem...") as sp:
         cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
         sp.ok(f"> Problem {problem_index} downloaded successfully\n")
 
-    template_file = config.get("code", {}).get("template_file", "")
+    template_file = config.code_config.template_file_path
 
     cli_commands.generate_problem.generate_problem(problem_path_location, cf_problem,template_file)
 
@@ -111,8 +111,8 @@ def cli_get_contest(
         print("Invalid contest id")
         return
 
-    config = load_general_config_file()
-    codeforces_api = Codeforces(config.get("codeforces", {}))
+    config = ProgramConfigs.get_program_config()
+    codeforces_api = Codeforces(config.codeforces_config)
 
     cf_contest = codeforces_api.get_contest(contest_id, is_gym)
 
@@ -129,10 +129,10 @@ def cli_get_contest(
         "problems": cf_contest.problems
     }
 
-    with open(contest_folder / "contest.toml","wb") as f:
-        tomli_w.dump(basic_contest_data,f)
+    with open(contest_folder / "contest.toml","w") as f:
+        tomlkit.dump(basic_contest_data,f)
 
-    template_file = config.get("code", {}).get("template_file", "")
+    template_file = config.code_config.template_file_path
 
     with yaspin(Spinners.earth, text="Fetching problems...") as sp:
         for problem_index in cf_contest.problems:
@@ -160,9 +160,9 @@ def test_problem():
 
     problem_code_file = current_path / f"{cf_problem.problem_index}.cpp"
 
-    config = load_general_config_file()
+    config = ProgramConfigs.get_program_config()
 
-    compilation_command = config.get("code", {}).get("compilation_command", None)
+    compilation_command = config.code_config.compile_command
 
     cli_commands.problem_test.test_problem(console,current_path, problem_code_file, compilation_command)
 
