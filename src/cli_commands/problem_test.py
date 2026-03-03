@@ -75,7 +75,7 @@ def test_problem(console:Console,problem_path:Path,problem_code_file:Path, user_
 
     testcases = _read_problem_testcases(problem_path)
 
-    compilation_command = f"{user_compilation_command} {problem_code_file} -o problem"
+    compilation_command = f"{user_compilation_command} {problem_code_file}"
     print(compilation_command)
     problem_exe=_compile_solution(console,compilation_command, problem_path)
     _run_testcases(console,problem_exe, testcases)
