@@ -7,6 +7,7 @@ import tomli_w
 import typer
 from dacite import from_dict
 from rich.console import Console
+from rich.progress import track
 
 from Codeforces.Codeforces import CFProblem,Codeforces
 
@@ -144,7 +145,7 @@ def cli_get_contest(
 
     template_file = config.get("code", {}).get("template_file", "")
 
-    for problem_index in cf_contest.problems:
+    for problem_index in track(cf_contest.problems, description="Downloading problems..."):
         cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
         cli_commands.generate_problem.generate_problem(contest_folder, cf_problem,template_file)
 
