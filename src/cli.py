@@ -6,6 +6,8 @@ import tomli_w
 import typer
 from rich.console import Console
 from rich.progress import track
+from yaspin import Spinner, yaspin
+from yaspin.spinners import Spinners
 
 from Codeforces.Codeforces import Codeforces
 
@@ -56,10 +58,17 @@ def cli_get_problem(
         print("Invalid problem id")
         return
 
+    problem_folder = problem_path_location / problem_index
+    if problem_folder.exists():
+        print(f"Folder {problem_folder} already exists")
+        return
+
     config = load_general_config_file()
     codeforces_api = Codeforces(config.get("codeforces", {}))
 
-    cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
+    with yaspin(Spinners.earth, text="Fetching problem...") as sp:
+        cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
+        sp.ok(f"> Problem {problem_index} downloaded successfully\n")
 
     template_file = config.get("code", {}).get("template_file", "")
 
@@ -108,6 +117,9 @@ def cli_get_contest(
     cf_contest = codeforces_api.get_contest(contest_id, is_gym)
 
     contest_folder = contest_path_location / contest_id
+    if contest_folder.exists():
+        print(f"Folder {contest_folder} already exists")
+        return
     contest_folder.mkdir()
 
     basic_contest_data = {
@@ -122,9 +134,11 @@ def cli_get_contest(
 
     template_file = config.get("code", {}).get("template_file", "")
 
-    for problem_index in track(cf_contest.problems, description="Downloading problems..."):
-        cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
-        cli_commands.generate_problem.generate_problem(contest_folder, cf_problem,template_file)
+    with yaspin(Spinners.earth, text="Fetching problems...") as sp:
+        for problem_index in cf_contest.problems:
+            cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
+            cli_commands.generate_problem.generate_problem(contest_folder, cf_problem,template_file)
+            sp.write(f"> Problem {problem_index} downloaded successfully")
 
 @app.command("read")
 def read_problem():

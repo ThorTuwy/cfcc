@@ -16,6 +16,7 @@ dependencies = [
     "rich>=14.3.3",
     "tomli-w>=1.2.0",
     "typer>=0.24.1",
+    "yaspin>=3.4.0",
 ]
 
 [project.scripts]
