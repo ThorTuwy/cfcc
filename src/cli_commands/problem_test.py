@@ -6,7 +6,6 @@ from rich.console import Console
 import beautifier.errors
 from beautifier.test_case import TestCaseVerdict
 import beautifier.test_case
-import inspect
 
 def _read_problem_testcases(problem_path:Path):
     testcases: list[tuple[str, str]] = []
@@ -69,10 +68,6 @@ def _run_testcases(console:Console,problem_exe: Path, testcases: list[tuple[str,
         beautifier.test_case.print_test_case(console,case_verdict, str(idx+1), case_input, expected_output, run.stdout, run.stderr)
 
 def test_problem(console:Console,problem_path:Path,problem_code_file:Path, user_compilation_command:str|None=None):
-
-    if user_compilation_command is None:
-        user_compilation_command = DEFAULT_COMPILATION_COMMAND
-
     testcases = _read_problem_testcases(problem_path)
 
     compilation_command = f"{user_compilation_command} {problem_code_file}"
