@@ -1,53 +1,22 @@
 from pathlib import Path
 from urllib.parse import urlsplit
-from typing import Annotated, Any, Dict
+from typing import Annotated
 
-import tomllib
 import tomli_w
 import typer
-from dacite import from_dict
 from rich.console import Console
 from rich.progress import track
 
-from Codeforces.Codeforces import CFProblem,Codeforces
+from Codeforces.Codeforces import Codeforces
 
 import cli_commands.problem_test
 import cli_commands.generate_problem
 import beautifier.problem
 
+from utils.file_managment import load_general_config_file, read_problem_file
 
-APP_NAME = "cfcc"
 app = typer.Typer()
 console = Console()
-
-def load_config() -> Dict[str,Any]:
-    config_file = Path(typer.get_app_dir(APP_NAME)) / "config.toml"
-
-    config_file.parent.mkdir(parents=True,exist_ok=True)
-
-    if not config_file.exists():
-        open(config_file,"x")
-
-    with config_file.open("rb") as f:
-        config = tomllib.load(f)
-
-    template_file = Path(typer.get_app_dir(APP_NAME)) / "template.cpp"
-    if not template_file.exists():
-        open(template_file,"x")
-
-    if "code" not in config:
-        config["code"] = {}
-    config["code"]["template_file"] = str(template_file.resolve())
-    return config
-
-def read_problem_toml(problem_path:Path) -> CFProblem:
-    problem_toml = problem_path / "problem.toml"
-    if not problem_toml.exists():
-        raise Exception("No problem.toml found, you need to run this command in a problem folder")
-    with open(problem_toml, "rb") as f:
-        problem_data = tomllib.load(f)
-    cf_problem = from_dict(data_class=CFProblem, data=problem_data)
-    return cf_problem
 
 @app.command("problem")
 def cli_get_problem(
@@ -83,7 +52,7 @@ def cli_get_problem(
     contest_id=split_url_path[1]
     problem_index=split_url_path[3]
 
-    config = load_config()
+    config = load_general_config_file()
     codeforces_api = Codeforces(config.get("codeforces", {}))
 
     cf_problem = codeforces_api.get_problem(contest_id, problem_index, is_gym)
@@ -125,7 +94,7 @@ def cli_get_contest(
     is_gym = split_url_path[0] == "gym"
     contest_id=split_url_path[1]
 
-    config = load_config()
+    config = load_general_config_file()
     codeforces_api = Codeforces(config.get("codeforces", {}))
 
     cf_contest = codeforces_api.get_contest(contest_id, is_gym)
@@ -155,7 +124,7 @@ def read_problem():
     Read the problem you are currently in.
     """
     current_path = Path.cwd()
-    cf_problem = read_problem_toml(current_path)
+    cf_problem = read_problem_file(current_path)
 
     beautifier.problem.print_problem(console,cf_problem)
 
@@ -165,11 +134,11 @@ def test_problem():
     Test the problem you are currently in.
     """
     current_path = Path.cwd()
-    cf_problem = read_problem_toml(current_path)
+    cf_problem = read_problem_file(current_path)
 
     problem_code_file = current_path / f"{cf_problem.problem_index}.cpp"
 
-    config = load_config()
+    config = load_general_config_file()
 
     compilation_command = config.get("code", {}).get("compilation_command", None)
 
