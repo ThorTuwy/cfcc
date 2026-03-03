@@ -20,7 +20,7 @@ console = Console()
 
 @app.command("problem")
 def cli_get_problem(
-    problem_url: Annotated[str, typer.Argument()] = "",
+    problem: Annotated[str, typer.Argument(help="ID or URL of the problem ( id format: contest_id-problem_index ej: 1337-A )")],
     problem_path_location: Annotated[
     Path,
     typer.Argument(
@@ -32,25 +32,29 @@ def cli_get_problem(
         resolve_path=True,
     ),
     ]=Path.cwd(),
+    is_gym: Annotated[bool|None, typer.Option("--gym",help="Is the contest a gym contest (Auto inferred if use the URL)", )] = None,
 ):
     """Get a problem from Codeforces."""
-    if not problem_url:
-        print("No problem URL provided")
-        return
+    if len(problem.split("-")) == 2:
+        contest_id,problem_index=problem.split("-")
+    elif problem.startswith("http"):
+        problem_url=problem
+        split_url = urlsplit(problem_url)
+        if split_url is None:
+            print("Invalid URL")
+            return
 
-    split_url=urlsplit(problem_url)
-    if split_url is None:
-        print("Invalid URL")
+        split_url_path = (split_url.path[1:]).split("/")
+        if len(split_url_path) != 4:
+            print("Incorrect URL")
+            return
+        if is_gym is None:
+            is_gym = split_url_path[0] == "gym"
+        contest_id = split_url_path[1]
+        problem_index = split_url_path[3]
+    else:
+        print("Invalid problem id")
         return
-
-    split_url_path=(split_url.path[1:]).split("/")
-    if len(split_url_path) != 4:
-        print("Incorrect URL")
-        return
-
-    is_gym = split_url_path[0] == "gym"
-    contest_id=split_url_path[1]
-    problem_index=split_url_path[3]
 
     config = load_general_config_file()
     codeforces_api = Codeforces(config.get("codeforces", {}))
@@ -63,7 +67,7 @@ def cli_get_problem(
 
 @app.command("contest")
 def cli_get_contest(
-    contest_url: Annotated[str, typer.Argument()] = "",
+    contest: Annotated[str, typer.Argument(help="ID or URL of the contest")],
     contest_path_location: Annotated[
         Path,
         typer.Argument(
@@ -74,25 +78,29 @@ def cli_get_contest(
             readable=True,
             resolve_path=True,
         ),
-    ]=Path.cwd()
+    ]=Path.cwd(),
+    is_gym: Annotated[bool|None, typer.Option("--gym",help="Is the contest a gym contest (Auto inferred if use the URL)", )] = None,
 ):
     """Get a contest from Codeforces."""
-    if not contest_url:
-        print("No contest URL provided")
-        return
+    if contest.isnumeric():
+        contest_id=contest
+    elif contest.startswith("http"):
+        contest_url=contest
+        split_url=urlsplit(contest_url)
+        if split_url is None:
+            print("Invalid URL")
+            return
 
-    split_url=urlsplit(contest_url)
-    if split_url is None:
-        print("Invalid URL")
+        split_url_path=(split_url.path[1:]).split("/")
+        if len(split_url_path) != 2:
+            print("Incorrect URL")
+            return
+        if is_gym is None:
+            is_gym = split_url_path[0] == "gym"
+        contest_id = split_url_path[1]
+    else:
+        print("Invalid contest id")
         return
-
-    split_url_path=(split_url.path[1:]).split("/")
-    if len(split_url_path) != 2:
-        print("Incorrect URL")
-        return
-
-    is_gym = split_url_path[0] == "gym"
-    contest_id=split_url_path[1]
 
     config = load_general_config_file()
     codeforces_api = Codeforces(config.get("codeforces", {}))
@@ -104,7 +112,7 @@ def cli_get_contest(
 
     basic_contest_data = {
         "id": contest_id,
-        "url": contest_url,
+        "url": f"{codeforces_api.requester.url}/contest/{contest_id}",
         "title": cf_contest.title,
         "problems": cf_contest.problems
     }

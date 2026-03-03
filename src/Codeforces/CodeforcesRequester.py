@@ -25,7 +25,7 @@ class CodeforcesRequester:
         if user_agent is None:
             user_agent = DEFAULT_USER_AGENT
 
-        self._url = codeforces_url
+        self.url = codeforces_url
         self._session = httpx.Client(
             cookies=cookies,
             headers={
@@ -34,7 +34,7 @@ class CodeforcesRequester:
         )
 
     def _get_contest_url(self,contest_id:str, is_gym=False):
-        request_url = f"{self._url}/"
+        request_url = f"{self.url}/"
         if is_gym:
             request_url += "gym/"
         else:
