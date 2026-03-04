@@ -21,6 +21,7 @@ APP_NAME = "cfcc"
 class CodeforcesConfig:
     url:str = "https://codeforces.com"
     user_agent:str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    program_language: str = "C++23"
     prefer_browser_cookies:str|None = None
 
     def get_as_toml_table(self) -> Table:
@@ -30,13 +31,14 @@ class CodeforcesConfig:
         cf_config["url"].comment("Codeforces URL.")
         cf_config.add("user_agent", self.user_agent)
         cf_config["user_agent"].comment("User agent to use for scraping.")
+        cf_config.add("program_language", str(self.program_language))
+        cf_config["program_language"].comment("Program language use by codeforces to compile your code, you can find all available languages here: https://github.com/ThorTuwy/cfcc/blob/master/src/utils/language_to_program_id.py")
         if self.prefer_browser_cookies:
             cf_config.add("prefer_browser_cookies", self.prefer_browser_cookies)
         else:
             cf_config.add("prefer_browser_cookies", "None")
         cf_config["prefer_browser_cookies"].comment("Select what browser you want to use for cookies. (Brave, Chrome, Chromium, Firefox)")
         return cf_config
-
 
 @dataclass
 class CodeConfig:

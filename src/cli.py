@@ -166,5 +166,38 @@ def test_problem():
 
     cli_commands.problem_test.test_problem(console,current_path, problem_code_file, compilation_command)
 
+@app.command("submit")
+def submit_problem(
+        yolo: Annotated[bool, typer.Option("--yolo",help="Send your program without trying your test and without confirmation.", )] = False,
+        no_confirmation: Annotated[bool, typer.Option("--no-confirm",help="Disable confirmation.", )] = False,
+        no_test: Annotated[bool, typer.Option("--no-test",help="Disable test.", )] = False,
+    ):
+    """
+    Submit the problem (With included test and confirmation) you are currently in.
+    """
+    current_path = Path.cwd()
+    cf_problem = read_problem_file(current_path)
+
+    problem_code_file = current_path / f"{cf_problem.problem_index}.cpp"
+
+    config = ProgramConfigs.get_program_config()
+
+    if not yolo:
+        if not no_test:
+            compilation_command = config.code_config.compile_command
+            cli_commands.problem_test.test_problem(console,current_path, problem_code_file, compilation_command)
+
+        if not no_confirmation:
+            submit_code_confirmation=typer.confirm("Are you sure you want to submit this problem?")
+            if not submit_code_confirmation:
+                raise typer.Abort()
+
+    problem_code_text = problem_code_file.read_text()
+
+    codeforces_api = Codeforces(config.codeforces_config)
+    with yaspin(Spinners.earth, text="Submitting your problem...") as sp:
+        codeforces_api.submit_problem(cf_problem.contest_id, cf_problem.problem_index, problem_code_text, cf_problem.is_gym)
+        sp.ok(f"> Problem {cf_problem.problem_index} submitted successfully, good luck o7\n")
+
 if __name__ == "__main__":
     app()

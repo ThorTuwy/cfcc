@@ -5,12 +5,14 @@ from bs4 import BeautifulSoup
 from Codeforces.CodeforcesRequester import CodeforcesRequester
 from Codeforces.CodeforcesTextParser import get_text_in_div
 from utils.program_configs import CodeforcesConfig
+from utils.language_to_program_id import language_to_program_id
 
 
 @dataclass
 class CFProblem:
     contest_id: str
     problem_index: str
+    is_gym:bool
     title: str
     time_limit: float
     memory_limit: int
@@ -25,8 +27,9 @@ class CFContest:
     problems: list[str]
 
 class Codeforces:
-    def __init__(self, codeforces_requester_configs: CodeforcesConfig):
-        self.requester = CodeforcesRequester(codeforces_requester_configs)
+    def __init__(self, codeforces_config: CodeforcesConfig):
+        self.requester = CodeforcesRequester(codeforces_config)
+        self.program_language_id = language_to_program_id(codeforces_config.program_language)
 
     def get_problem(self, contest_id: str, problem_index: str, is_gym=False) -> CFProblem:
         problem_request = self.requester.get_problem(contest_id, problem_index, is_gym)
@@ -75,6 +78,7 @@ class Codeforces:
         return CFProblem(
             contest_id=contest_id,
             problem_index=problem_index,
+            is_gym=is_gym,
             title=title,
             time_limit=time_limit,
             memory_limit=memory_limit,
@@ -97,3 +101,5 @@ class Codeforces:
             problems=problem_list
         )
 
+    def submit_problem(self, contest_id: str, problem_index: str, problem_code:str, is_gym=False):
+        self.requester.submit_problem(contest_id, problem_index,problem_code, self.program_language_id, is_gym)

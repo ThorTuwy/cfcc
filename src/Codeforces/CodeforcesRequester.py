@@ -1,4 +1,5 @@
 import browser_cookie3
+import bs4
 import httpx
 from utils.program_configs import CodeforcesConfig
 
@@ -65,3 +66,34 @@ class CodeforcesRequester:
     def get_contest(self,contest_id:str, is_gym=False):
         request_url = self._get_contest_url(contest_id,is_gym)
         return self._session.get(request_url)
+
+    def _get_csrf_token(self):
+        request_url = f"{self.url}"
+        main_page_response = self._session.get(request_url)
+        main_page_soup = bs4.BeautifulSoup(main_page_response.content, "html.parser")
+        return main_page_soup.find("span",class_="csrf-token").get("data-csrf")
+
+
+    def submit_problem(self, contest_id:str, problem_index:str, problem_code:str, program_language_id:int, is_gym=False):
+        request_url= f"{self._get_contest_url(contest_id,is_gym)}/submit"
+
+        csrf_token = self._get_csrf_token()
+
+        request_query = {
+            "csrf_token" : csrf_token,
+        }
+
+        data_query = {
+            "csrf_token" : csrf_token,
+            "action" : "submitSolutionFormSubmitted",
+            "turnstileToken" : "", # Intentionally empty
+            "submittedProblemIndex" : problem_index,
+            "programTypeId" : program_language_id,
+            "source" : problem_code,
+            "tabSize" : 4,
+            "sourceFile":"", # Intentionally empty
+        }
+
+        request = self._session.post(request_url, data=data_query, params=request_query)
+
+        return request.status_code != 200
