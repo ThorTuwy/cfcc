@@ -1,6 +1,10 @@
+from typing import Any, AsyncGenerator
+
 import browser_cookie3
 import bs4
 import httpx
+from httpx_ws import aconnect_ws
+
 from utils.program_configs import CodeforcesConfig
 
 class CodeforcesRequester:
@@ -39,6 +43,12 @@ class CodeforcesRequester:
 
         self.url = codeforces_url
         self._session = httpx.Client(
+            cookies=cookies,
+            headers={
+                "User-Agent": user_agent
+            }
+        )
+        self._async_session = httpx.AsyncClient(
             cookies=cookies,
             headers={
                 "User-Agent": user_agent
@@ -97,3 +107,27 @@ class CodeforcesRequester:
         request = self._session.post(request_url, data=data_query, params=request_query)
 
         return request.status_code != 200
+
+    def get_my_submission(self,contest_id:str, is_gym=False):
+        request_url = f"{self._get_contest_url(contest_id,is_gym)}/my"
+        return self._session.get(request_url)
+
+    async def stream_submission_messages_updates(self,contest_id:str, is_gym=False) -> AsyncGenerator[str, Any]:
+        request_url = f"{self._get_contest_url(contest_id, is_gym)}/my"
+
+        async with aconnect_ws(request_url, self._async_session) as ws:
+            while True:
+                message = await ws.receive_text()
+                yield message
+
+    def get_problem_data_by_id(self,contest_id:str, problem_internal_id:str):
+        request_url = f"{self.url}/data/contests"
+        data = {
+            "action": "getProblemName",
+            "mode": "CONTEST",
+            "contestId": str(contest_id),
+            "problemId": str(problem_internal_id),
+            "communityCode": "",
+            "csrf_token": self._get_csrf_token()
+        }
+        return self._session.post(request_url, data=data)

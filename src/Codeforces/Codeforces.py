@@ -1,5 +1,6 @@
+import json
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Dict, Any, AsyncGenerator
 from bs4 import BeautifulSoup
 
 from Codeforces.CodeforcesRequester import CodeforcesRequester
@@ -25,6 +26,16 @@ class CFProblem:
 class CFContest:
     title: str
     problems: list[str]
+
+@dataclass
+class CFSubmission:
+    submission_id: str
+    contest_id: str
+    problem_index: str
+    problem_name: str
+    verdict: str
+    time: float
+    memory: int
 
 class Codeforces:
     def __init__(self, codeforces_config: CodeforcesConfig):
@@ -103,3 +114,19 @@ class Codeforces:
 
     def submit_problem(self, contest_id: str, problem_index: str, problem_code:str, is_gym=False):
         self.requester.submit_problem(contest_id, problem_index,problem_code, self.program_language_id, is_gym)
+
+    async def stream_submission_updates(self, contest_id: str, is_gym=False):
+        async for message in self.requester.stream_submission_messages_updates(contest_id, is_gym):
+            message_raw_data = json.loads(message)
+            message_data = json.loads(message_raw_data['text'])['d']
+
+            yield CFSubmission(
+                submission_id=message_data[1],
+                contest_id=contest_id,
+                problem_index=message_data[2],
+                problem_name=message_data[3],
+                verdict=message_data[4],
+                time=message_data[5],
+                memory=message_data[6]
+            )
+
