@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 from dataclasses import dataclass
@@ -58,6 +57,23 @@ class CodeConfig:
 class ProgramConfigs:
     codeforces_config:CodeforcesConfig
     code_config:CodeConfig
+
+    @classmethod
+    def regenerate_config(cls):
+        config_path = Path(typer.get_app_dir(APP_NAME))
+        if config_path.exists():
+            shutil.rmtree(config_path)
+        config_path.mkdir(parents=True, exist_ok=True)
+
+        config_file_path = config_path / "config.toml"
+        default_configs_doc = cls.generate_default_toml_doc()
+
+        config_file_toml = tomlkit.toml_file.TOMLFile(config_file_path)
+        config_file_toml.write(default_configs_doc)
+
+        shutil.copy(Path(__file__).parent / "default_template.cpp", config_path / CodeConfig.template_file_path)
+
+
 
     @classmethod
     def get_program_config(cls) -> ProgramConfigs:

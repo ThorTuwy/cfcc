@@ -20,6 +20,15 @@ from utils.program_configs import ProgramConfigs
 app = typer.Typer()
 console = Console()
 
+@app.command("regenerate_configs")
+def force_regenerate_configs():
+    """Forces the configs to regenerate to default"""
+    regenerate_confirmation = typer.confirm("Are you sure you want to regenerate your configs? THIS WILL DELETE YOUR CURRENT CONFIGS")
+    if not regenerate_confirmation:
+        raise typer.Abort()
+    ProgramConfigs.regenerate_config()
+    print("Config regenerate successfully")
+
 @app.command("problem")
 def cli_get_problem(
     problem: Annotated[str, typer.Argument(help="ID or URL of the problem ( id format: contest_id-problem_index ej: 1337-A )")],
