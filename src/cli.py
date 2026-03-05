@@ -48,6 +48,8 @@ def cli_get_problem(
     """Get a problem from Codeforces."""
     if len(problem.split("-")) == 2:
         contest_id,problem_index=problem.split("-")
+        if is_gym is None:
+            is_gym = False
     elif problem.startswith("http"):
         problem_url=problem
         split_url = urlsplit(problem_url)
@@ -102,6 +104,8 @@ def cli_get_contest(
     """Get a contest from Codeforces."""
     if contest.isnumeric():
         contest_id=contest
+        if is_gym is None:
+            is_gym = False
     elif contest.startswith("http"):
         contest_url=contest
         split_url=urlsplit(contest_url)

@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from typing import Dict, Any, AsyncGenerator
 from bs4 import BeautifulSoup
 
 from Codeforces.CodeforcesRequester import CodeforcesRequester
