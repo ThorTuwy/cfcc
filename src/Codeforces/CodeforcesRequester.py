@@ -5,6 +5,7 @@ import browser_cookie3
 import bs4
 import httpx
 import websockets
+from httpx_retries import RetryTransport
 
 from utils.program_configs import CodeforcesConfig
 
@@ -44,12 +45,14 @@ class CodeforcesRequester:
 
         self.url = codeforces_url
         self._session = httpx.Client(
+            transport=RetryTransport(),
             cookies=cookies,
             headers={
                 "User-Agent": user_agent
             }
         )
         self._async_session = httpx.AsyncClient(
+            transport=RetryTransport(),
             cookies=cookies,
             headers={
                 "User-Agent": user_agent

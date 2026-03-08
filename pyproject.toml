@@ -9,6 +9,7 @@ dependencies = [
     "browser-cookie3>=0.20.1",
     "dacite>=1.9.2",
     "httpx>=0.28.1",
+    "httpx-retries>=0.4.6",
     "pycookiecheat>=0.8.0",
     "pylatexenc>=2.10",
     "rich>=14.3.3",
