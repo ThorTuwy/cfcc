@@ -4,6 +4,7 @@ from typing import AsyncGenerator, Dict, List
 from rich import box
 from rich.align import Align
 from rich.console import Group,Console
+from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -113,7 +114,8 @@ class SubmissionTable:
 def display_submission_table(contest_name:str, contest_problems:list[str], console:Console,submissions_steam: AsyncGenerator[Dict[str, CFSubmission], None]):
     submission_table = SubmissionTable(contest_name, contest_problems)
     async def async_run_submission_table():
-        async for submissions in submissions_steam:
-            console.print(submission_table.generate_submission_table(submissions))
+        with Live(console=console, refresh_per_second=4) as live:
+            async for submissions in submissions_steam:
+                live.update(submission_table.generate_submission_table(submissions))
 
     asyncio.run(async_run_submission_table())

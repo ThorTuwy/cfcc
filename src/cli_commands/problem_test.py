@@ -38,7 +38,7 @@ def _compile_solution(console:Console,compilation_command: str, workdir: Path) -
 
     if result.returncode != 0:
         beautifier.errors.print_compilation_error(console,result.stdout, result.stderr)
-        raise RuntimeError()
+        exit(0)
 
     problem_exe = workdir / "problem"
     if not problem_exe.exists():

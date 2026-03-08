@@ -55,10 +55,17 @@ class CodeforcesSubmissionTable:
             problem_index = problem_content.get("href").split("/")[4]
             problem_name = problem_content.text.split("-")[1].strip()
 
-            when = submission_row.find_next(class_="format-time").text
-            verdict = submission_row.find_next(attrs={"submissionverdict": True}).get("submissionverdict")
-            time_ms = int(submission_row.find_next(class_="time-consumed-cell").text.split()[0])
-            memory_kb =  int(submission_row.find_next(class_="memory-consumed-cell").text.split()[0])
+            when_element = submission_row.find_next(class_="format-time")
+            when = when_element.text if when_element is not None else ""
+
+            verdict_element = submission_row.find_next(attrs={"submissionverdict": True})
+            verdict = verdict_element.get("submissionverdict") if verdict_element is not None else "TESTING"
+
+            time_element = submission_row.find_next(class_="time-consumed-cell")
+            time_ms = int(time_element.text.split()[0]) if time_element is not None else 0
+
+            memory_element = submission_row.find_next(class_="memory-consumed-cell")
+            memory_kb = int(memory_element.text.split()[0]) if memory_element is not None else 0
 
             new_submission_data[submission_id] = CFSubmission(
                 contest_id=self.contest_id,
