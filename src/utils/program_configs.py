@@ -9,7 +9,6 @@ import tomllib
 import dacite
 import tomlkit.toml_file
 import typer
-from dacite import Config
 from tomlkit import document, TOMLDocument, comment
 from tomlkit import table
 from tomlkit.items import Table
@@ -116,7 +115,6 @@ class ProgramConfigs:
         doc.add("codeforces_config",self.codeforces_config.get_as_toml_table())
         doc.add("code_config",self.code_config.get_as_toml_table())
         return doc
-
 
 def load_general_config_file() -> Dict[str,Any]:
     config_file = Path(typer.get_app_dir(APP_NAME)) / "config.toml"

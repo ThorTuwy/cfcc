@@ -1,8 +1,11 @@
 import json
 from dataclasses import dataclass
+from typing import AsyncGenerator
+
 from bs4 import BeautifulSoup
 
 from Codeforces.CodeforcesRequester import CodeforcesRequester
+from Codeforces.CodeforcesSubmissionTable import CodeforcesSubmissionTable, CFSubmission
 from Codeforces.CodeforcesTextParser import get_text_in_div
 from utils.program_configs import CodeforcesConfig
 from utils.language_to_program_id import language_to_program_id
@@ -23,23 +26,30 @@ class CFProblem:
 
 @dataclass
 class CFContest:
+    id: str
+    is_gym: bool
     title: str
     problems: list[str]
-
-@dataclass
-class CFSubmission:
-    submission_id: str
-    contest_id: str
-    problem_index: str
-    problem_name: str
-    verdict: str
-    time: float
-    memory: int
 
 class Codeforces:
     def __init__(self, codeforces_config: CodeforcesConfig):
         self.requester = CodeforcesRequester(codeforces_config)
         self.program_language_id = language_to_program_id(codeforces_config.program_language)
+
+    def get_contest(self, contest_id: str, is_gym=False) -> CFContest:
+        contest_request = self.requester.get_contest(contest_id, is_gym)
+        contest_soup = BeautifulSoup(contest_request.text, "html.parser")
+
+        problem_list = []
+        for problem_tag in contest_soup.find_all(class_='id'):
+            problem_list.append(problem_tag.find('a')['href'].split('/')[4])
+
+        return CFContest(
+            id=contest_id,
+            is_gym=is_gym,
+            title=contest_soup.find("title").text.strip(),
+            problems=problem_list
+        )
 
     def get_problem(self, contest_id: str, problem_index: str, is_gym=False) -> CFProblem:
         problem_request = self.requester.get_problem(contest_id, problem_index, is_gym)
@@ -98,34 +108,9 @@ class Codeforces:
             samples=problems_samples
         )
 
-    def get_contest(self, contest_id: str, is_gym=False) -> CFContest:
-        contest_request = self.requester.get_contest(contest_id, is_gym)
-        contest_soup = BeautifulSoup(contest_request.text, "html.parser")
-
-        problem_list = []
-        for problem_tag in contest_soup.find_all(class_='id'):
-            problem_list.append(problem_tag.find('a')['href'].split('/')[4])
-
-        return CFContest(
-            title=contest_soup.find("title").text.strip(),
-            problems=problem_list
-        )
-
     def submit_problem(self, contest_id: str, problem_index: str, problem_code:str, is_gym=False):
         self.requester.submit_problem(contest_id, problem_index,problem_code, self.program_language_id, is_gym)
 
-    async def stream_submission_updates(self, contest_id: str, is_gym=False):
-        async for message in self.requester.stream_submission_messages_updates(contest_id, is_gym):
-            message_raw_data = json.loads(message)
-            message_data = json.loads(message_raw_data['text'])['d']
-
-            yield CFSubmission(
-                submission_id=message_data[1],
-                contest_id=contest_id,
-                problem_index=message_data[2],
-                problem_name=message_data[3],
-                verdict=message_data[4],
-                time=message_data[5],
-                memory=message_data[6]
-            )
-
+    def stream_submission_table(self, contest_id: str, is_gym=False) -> AsyncGenerator[dict[str, CFSubmission]]:
+        cf_submission_table = CodeforcesSubmissionTable(self.requester, contest_id, is_gym)
+        return cf_submission_table.get_realtime_submission_table()

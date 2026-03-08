@@ -1,9 +1,10 @@
+import time
 from typing import Any, AsyncGenerator
 
 import browser_cookie3
 import bs4
 import httpx
-from httpx_ws import aconnect_ws
+import websockets
 
 from utils.program_configs import CodeforcesConfig
 
@@ -112,22 +113,13 @@ class CodeforcesRequester:
         request_url = f"{self._get_contest_url(contest_id,is_gym)}/my"
         return self._session.get(request_url)
 
-    async def stream_submission_messages_updates(self,contest_id:str, is_gym=False) -> AsyncGenerator[str, Any]:
-        request_url = f"{self._get_contest_url(contest_id, is_gym)}/my"
+    async def stream_submission_messages_updates(self, pc: str) -> AsyncGenerator[str, Any]:
+        ws_url = f"wss://pubsub.codeforces.com/ws/s_{pc}?_={int(time.time())}"
 
-        async with aconnect_ws(request_url, self._async_session) as ws:
-            while True:
-                message = await ws.receive_text()
+        async with websockets.connect(
+                ws_url,
+                ping_interval=None,
+                ping_timeout=None,
+        ) as ws:
+            async for message in ws:
                 yield message
-
-    def get_problem_data_by_id(self,contest_id:str, problem_internal_id:str):
-        request_url = f"{self.url}/data/contests"
-        data = {
-            "action": "getProblemName",
-            "mode": "CONTEST",
-            "contestId": str(contest_id),
-            "problemId": str(problem_internal_id),
-            "communityCode": "",
-            "csrf_token": self._get_csrf_token()
-        }
-        return self._session.post(request_url, data=data)

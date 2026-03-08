@@ -1,3 +1,5 @@
+import asyncio
+import dataclasses
 from pathlib import Path
 from urllib.parse import urlsplit
 from typing import Annotated
@@ -12,9 +14,9 @@ from Codeforces.Codeforces import Codeforces
 
 import cli_commands.problem_test
 import cli_commands.generate_problem
-import beautifier.problem
+import beautifier.problem, beautifier.submission_table
 
-from utils.file_managment import read_problem_file
+from utils.file_managment import read_problem_file, read_contest_file
 from utils.program_configs import ProgramConfigs
 
 app = typer.Typer()
@@ -124,26 +126,18 @@ def cli_get_contest(
         print("Invalid contest id")
         return
 
-    config = ProgramConfigs.get_program_config()
-    codeforces_api = Codeforces(config.codeforces_config)
-
-    cf_contest = codeforces_api.get_contest(contest_id, is_gym)
-
     contest_folder = contest_path_location / contest_id
     if contest_folder.exists():
         print(f"Folder {contest_folder} already exists")
         return
     contest_folder.mkdir()
 
-    basic_contest_data = {
-        "id": contest_id,
-        "url": f"{codeforces_api.requester.url}/contest/{contest_id}",
-        "title": cf_contest.title,
-        "problems": cf_contest.problems
-    }
+    config = ProgramConfigs.get_program_config()
+    codeforces_api = Codeforces(config.codeforces_config)
+    cf_contest = codeforces_api.get_contest(contest_id, is_gym)
 
     with open(contest_folder / "contest.toml","w") as f:
-        tomlkit.dump(basic_contest_data,f)
+        tomlkit.dump(dataclasses.asdict(cf_contest),f)
 
     template_file = config.code_config.template_file_path
 
@@ -211,6 +205,20 @@ def submit_problem(
     with yaspin(Spinners.earth, text="Submitting your problem...") as sp:
         codeforces_api.submit_problem(cf_problem.contest_id, cf_problem.problem_index, problem_code_text, cf_problem.is_gym)
         sp.ok(f"> Problem {cf_problem.problem_index} submitted successfully, good luck o7\n")
+
+@app.command("submissions")
+def get_submissions_table():
+    """
+    Get a live updating table with your submissions for your current contest.
+    """
+    current_path = Path.cwd()
+    cf_contest = read_contest_file(current_path)
+
+    config = ProgramConfigs.get_program_config()
+    codeforces_api = Codeforces(config.codeforces_config)
+
+    submissions_steam = codeforces_api.stream_submission_table(cf_contest.id, cf_contest.is_gym)
+    beautifier.submission_table.display_submission_table(cf_contest.title, cf_contest.problems, console, submissions_steam)
 
 if __name__ == "__main__":
     app()

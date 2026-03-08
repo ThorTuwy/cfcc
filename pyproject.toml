@@ -9,12 +9,12 @@ dependencies = [
     "browser-cookie3>=0.20.1",
     "dacite>=1.9.2",
     "httpx>=0.28.1",
-    "httpx-ws>=0.8.2",
     "pycookiecheat>=0.8.0",
     "pylatexenc>=2.10",
     "rich>=14.3.3",
     "tomlkit>=0.14.0",
     "typer>=0.24.1",
+    "websockets>=16.0",
     "yaspin>=3.4.0",
 ]
 
