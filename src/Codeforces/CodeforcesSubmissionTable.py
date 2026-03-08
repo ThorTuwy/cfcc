@@ -19,6 +19,7 @@ class CFSubmission:
     verdict: str
     time_ms: int
     memory_kb: int
+    passed_test: int = 0
 
 class CodeforcesSubmissionTable:
     def __init__(self, requester: CodeforcesRequester, contest_id: str, is_gym=False):
@@ -61,6 +62,9 @@ class CodeforcesSubmissionTable:
             verdict_element = submission_row.find_next(attrs={"submissionverdict": True})
             verdict = verdict_element.get("submissionverdict") if verdict_element is not None else "TESTING"
 
+            passed_test_element = submission_row.find_next(class_="verdict-format-judged")
+            passed_test = int(passed_test_element.text) if passed_test_element is not None else 0
+
             time_element = submission_row.find_next(class_="time-consumed-cell")
             time_ms = int(time_element.text.split()[0]) if time_element is not None else 0
 
@@ -73,11 +77,14 @@ class CodeforcesSubmissionTable:
                 problem_name=problem_name,
                 when=when,
                 verdict=verdict,
+                passed_test=passed_test,
                 time_ms=time_ms,
                 memory_kb=memory_kb
             )
 
-        self.submissions_data.update(new_submission_data)
+        for submission_id in new_submission_data:
+            if not submission_id in self.submissions_data:
+                self.submissions_data[submission_id] = new_submission_data[submission_id]
 
     async def get_realtime_submission_table(self) -> AsyncGenerator[dict[str, CFSubmission]]:
         yield self.submissions_data
@@ -90,12 +97,18 @@ class CodeforcesSubmissionTable:
 
             submission_id = str(data[1])
 
-            if  submission_id=="" or submission_id not in self.submissions_data:
+            submission = self.submissions_data.get(submission_id,None)
+            if submission is None:
                 self._fill_submissions()
-            else:
-                submission = self.submissions_data[submission_id]
+            elif data[7]>submission.passed_test:
+                print(f"New test passed on submission")
+                print(data)
                 submission.verdict = data[6]
+                submission.passed_test = data[7]
                 submission.time_ms = data[9]
                 submission.memory_kb = data[10] // 1024 if data[10] is not None else 0
+                self.submissions_data[submission_id] = submission
+            else:
+                continue
 
             yield self.submissions_data

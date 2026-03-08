@@ -90,11 +90,15 @@ class SubmissionTable:
         for submission in reversed(list(submissions.values())):
             submission_color = self._get_verdict_color(submission.verdict)
 
+            verdict_test = f"{submission.verdict}"
+            if submission.passed_test != 0:
+                verdict_test += f" on test {submission.passed_test}"
+
             sub_table = make_new_table(submission_color)
             sub_table.add_row(
                 submission.when,
                 f"{submission.problem_index} - {submission.problem_name}",
-                Text(f"{submission.verdict}", style=f"bold {submission_color}"),
+                Text(verdict_test, style=f"bold {submission_color}"),
                 f"{submission.time_ms} ms",
                 f"{submission.memory_kb} KB"
             )
