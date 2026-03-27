@@ -28,8 +28,6 @@ And now you NEED to enjoy using this CLI thing.
 ## Features 😎
 <sub><sup>It isn't an AI emoji pls trust me</sub></sup>
 
-And not joking, as you have all what you need here:
-
 * Download problems using `cfcc problem ID/URL`
 ![cfcc-problem.png](img/cfcc-problem.png)
 * Download entire contest using `cfcc contest ID/URL`
@@ -50,16 +48,16 @@ And not joking, as you have all what you need here:
 
 The main idea of this project is provide a CLI app in which you can (mostly)
 forget about the stupid browser and focus simply on your terminal to reduce
-mental noise, in part with that, the commands need to be stupidly easy to use
+mental noise, in part with that, the commands need to be stupidly easy to use, 
 so is not need it to be thinking what you should do, and also I don't want
 and BIG dependency on the project as is a little lame ngl.
 
-For that I decided on this way of working: This CLI is path aware, so the
+For that I decided on this way of working: This CLI is path-aware, so the
 idea is that when you download a contest/problem, when you are inside a problem
 folder, you are going to be able to use commands as `cfcc read` or `cfcc submit`
-without having to put paths or things like that. Also instead of getting the cookies
-via a headless browser or some shit like that (Because Cloudflare protection not possible
-to simply log in with using plain request), I simply scrap the cookies of your current 
+without having to put paths or things like that. Also, instead of getting the cookies
+via a headless browser or some shit like that (Because Cloudflare protections are not possible
+to simply log in with plain request), I simply scrap the cookies of your current 
 browser (Thx to browser_cookie3).
 
 ## PROBLEMS!?!?!
@@ -67,7 +65,7 @@ browser (Thx to browser_cookie3).
 
 If you need your favourite feature to be implemented or help fixing 
 that annoying bug, simply open your own issue or PR (But know
-that may or may not read it :P)
+that you may or may not read it :P)
 
 
 

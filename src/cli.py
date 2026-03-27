@@ -1,4 +1,3 @@
-import asyncio
 import dataclasses
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -24,7 +23,7 @@ console = Console()
 
 @app.command("regenerate_configs")
 def force_regenerate_configs():
-    """Forces the configs to regenerate to default"""
+    """Forces the configs to regenerate by default"""
     regenerate_confirmation = typer.confirm("Are you sure you want to regenerate your configs? THIS WILL DELETE YOUR CURRENT CONFIGS")
     if not regenerate_confirmation:
         raise typer.Abort()
