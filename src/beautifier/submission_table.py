@@ -87,7 +87,12 @@ class SubmissionTable:
         )
         tables_stack.append(header_table)
 
-        for submission in reversed(list(submissions.values())):
+        sorted_submissions=[]
+
+        for submission_id in sorted(submissions.keys()):
+            sorted_submissions.append(submissions[submission_id])
+
+        for submission in reversed(sorted_submissions):
             submission_color = self._get_verdict_color(submission.verdict)
 
             verdict_test = f"{submission.verdict}"
@@ -115,11 +120,11 @@ class SubmissionTable:
             self._get_submissions_tables(submissions)
         )
 
-def display_submission_table(contest_name:str, contest_problems:list[str], console:Console,submissions_steam: AsyncGenerator[Dict[str, CFSubmission], None]):
+def display_submission_table(contest_name:str, contest_problems:list[str], console:Console, submissions_stream: AsyncGenerator[Dict[str, CFSubmission], None]):
     submission_table = SubmissionTable(contest_name, contest_problems)
     async def async_run_submission_table():
         with Live(console=console, refresh_per_second=4) as live:
-            async for submissions in submissions_steam:
+            async for submissions in submissions_stream:
                 live.update(submission_table.generate_submission_table(submissions))
 
     asyncio.run(async_run_submission_table())

@@ -217,8 +217,8 @@ def get_submissions_table():
     config = ProgramConfigs.get_program_config()
     codeforces_api = Codeforces(config.codeforces_config)
 
-    submissions_steam = codeforces_api.stream_submission_table(cf_contest.id, cf_contest.is_gym)
-    beautifier.submission_table.display_submission_table(cf_contest.title, cf_contest.problems, console, submissions_steam)
+    submissions_stream = codeforces_api.stream_submission_table(cf_contest.id, cf_contest.is_gym)
+    beautifier.submission_table.display_submission_table(cf_contest.title, cf_contest.problems, console, submissions_stream)
 
 if __name__ == "__main__":
     app()
