@@ -6,7 +6,16 @@ Don't worry, because with this CLI you could achieve your dreams^.
 ^You need to still login into codeforces with your browser, upsis.
 
 ## How to install
-<sub><sup>Nobody likes repo install, but it is too green for pip sooooorry</sub></sup>
+<sub><sup>With the terminal, of course</sub></sup>
+
+## Pip Way
+
+Install the `cfcc` using pip:
+```bash
+pip install cfcc 
+```
+
+## Repo Way
 
 To install it, first start by cloning the repo:
 ```bash
@@ -19,7 +28,9 @@ Now, assuming that you have installed [UV](https://docs.astral.sh/uv/getting-sta
 uv tool install .
 ```
 
-And now you NEED to enjoy using this CLI thing.
+## Post-install
+
+Now you NEED to enjoy using this CLI thing.
 
 **WARNING**: Configs are generated after running your first command, so do that pls.
 
