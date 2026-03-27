@@ -49,26 +49,26 @@ class CodeforcesSubmissionTable:
         new_submission_data:Dict[str,CFSubmission] = {}
 
         for submission_row in submission_rows:
-            submission_id = submission_row.find_next(attrs={"submissionid": True}).get("submissionid")
+            submission_id = submission_row.find(attrs={"submissionid": True}).get("submissionid")
 
-            problem_cell = submission_row.find_next(attrs={"data-problemid": True})
-            problem_content = problem_cell.find_next("a")
+            problem_cell = submission_row.find(attrs={"data-problemid": True})
+            problem_content = problem_cell.find("a")
             problem_index = problem_content.get("href").split("/")[4]
             problem_name = problem_content.text.split("-")[1].strip()
 
-            when_element = submission_row.find_next(class_="format-time")
+            when_element = submission_row.find(class_="format-time")
             when = when_element.text if when_element is not None else ""
 
-            verdict_element = submission_row.find_next(attrs={"submissionverdict": True})
+            verdict_element = submission_row.find(attrs={"submissionverdict": True})
             verdict = verdict_element.get("submissionverdict") if verdict_element is not None else "TESTING"
 
-            passed_test_element = submission_row.find_next(class_="verdict-format-judged")
+            passed_test_element = submission_row.find(class_="verdict-format-judged")
             passed_test = int(passed_test_element.text) if passed_test_element is not None else 0
 
-            time_element = submission_row.find_next(class_="time-consumed-cell")
+            time_element = submission_row.find(class_="time-consumed-cell")
             time_ms = int(time_element.text.split()[0]) if time_element is not None else 0
 
-            memory_element = submission_row.find_next(class_="memory-consumed-cell")
+            memory_element = submission_row.find(class_="memory-consumed-cell")
             memory_kb = int(memory_element.text.split()[0]) if memory_element is not None else 0
 
             new_submission_data[submission_id] = CFSubmission(
