@@ -8,14 +8,14 @@ Don't worry, because with this CLI you could achieve your dreams^.
 ## How to install
 <sub><sup>With the terminal, of course</sub></sup>
 
-## Pip Way
+### Pip Way
 
 Install the `cfcc` using pip:
 ```bash
 pip install cfcc 
 ```
 
-## Repo Way
+### Repo Way
 
 To install it, first start by cloning the repo:
 ```bash
@@ -28,7 +28,7 @@ Now, assuming that you have installed [UV](https://docs.astral.sh/uv/getting-sta
 uv tool install .
 ```
 
-## Post-install
+### Post-install
 
 Now you NEED to enjoy using this CLI thing.
 
