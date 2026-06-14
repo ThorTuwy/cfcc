@@ -62,9 +62,15 @@ def cli_get_problem(
         if len(split_url_path) != 4:
             print("Incorrect URL")
             return
+
         if is_gym is None:
             is_gym = split_url_path[0] == "gym"
-        contest_id = split_url_path[1]
+
+        if split_url_path[0] != "problemset":
+            contest_id = split_url_path[1]
+        else:
+            contest_id = split_url_path[2]
+
         problem_index = split_url_path[3]
     else:
         print("Invalid problem id")
