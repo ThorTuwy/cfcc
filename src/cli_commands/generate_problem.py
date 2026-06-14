@@ -11,8 +11,10 @@ import tomlkit
 
 from Codeforces.Codeforces import CFProblem
 
-def generate_problem(contest_path:Path, problem:CFProblem, code_template_file:Path|None=None):
-    problem_path = contest_path / problem.problem_index
+def generate_problem(contest_path:Path, problem:CFProblem, code_template_file:Path|None=None, problem_path:Path|None=None):
+    if problem_path is None:
+        problem_path = contest_path / problem.problem_index
+
     if problem_path.exists():
         return
     problem_path.mkdir()

@@ -76,7 +76,7 @@ def cli_get_problem(
         print("Invalid problem id")
         return
 
-    problem_folder = problem_path_location / problem_index
+    problem_folder = problem_path_location / (contest_id+"-"+problem_index)
     if problem_folder.exists():
         print(f"Folder {problem_folder} already exists")
         return
@@ -90,7 +90,7 @@ def cli_get_problem(
 
     template_file = config.code_config.template_file_path
 
-    cli_commands.generate_problem.generate_problem(problem_path_location, cf_problem,template_file)
+    cli_commands.generate_problem.generate_problem(problem_path_location, cf_problem,template_file,problem_folder)
 
 @app.command("contest")
 def cli_get_contest(
